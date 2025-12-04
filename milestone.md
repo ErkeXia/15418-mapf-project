@@ -42,7 +42,7 @@ I am currently integrating this GPU-parallel search with CBS and preparing bench
 ## Updated Schedule
 12/1-12/4 Integrate the GPU-parallel search with CBS and compare the performance with serial baseline. 
 12/4-12/6 Implement the CPU-side constraint-tree logic with the task-based scheduling model.
-12/6-12/8 Benchmark the performance of the full accelerated CBS. 
+12/6-12/8 Benchmark full CBS pipeline, analyze speedup, prepare final results
 
 ## Goals
-My initial goal of replicating the full GACBS algorithm and design an additional parallel MAPF solver is unrealistic due to difficulty in replicating the search algorithm. I now swtich my goal to implement a simplified version of GPU-accelerated CBS. I plan to compare the performance of different versions of CBS and analyze what lead to the exact speedup. 
+My initial goal of replicating the full GACBS algorithm and designing an additional parallel MAPF solver turned out to be too large in scope due to the complexity of the GPU parallel A* search. I now shift my goal to a more realistic and well-defined target: to implement a simplified version of GPU-accelerated CBS. I aim to compare runtime of serial CBS vs GPU-parallel BFS-based CBS and investigate how frontier size, task batching, and map characteristics affect acceleration
