@@ -8,7 +8,7 @@
 #include <algorithm>
 #include <tuple>
 #include <climits>
-#include <yaml-cpp/yaml.h>
+#include <chrono>
 
 
 using namespace std;
@@ -79,6 +79,12 @@ struct AStarNode {
 };
 
 Path plan_path(const GridWorld& grid, Position start, Position goal, const set<Constraint>& constraints) {
+
+    int latest_constraint_time = 0;
+    for (const auto& c : constraints) {
+        latest_constraint_time = max(latest_constraint_time, c.first);
+    }
+
     priority_queue<AStarNode, vector<AStarNode>, greater<AStarNode>> open_set;
     
     Path initial_path;
@@ -96,11 +102,8 @@ Path plan_path(const GridWorld& grid, Position start, Position goal, const set<C
         }
         visited.insert({node.current, node.g_score});
 
-        if (node.current == goal) {
-            // Pad to avoid early disappear (matching Python logic)
-            Path final_path = node.path;
-            for(int i=0; i<5; ++i) final_path.push_back(goal);
-            return final_path;
+        if (node.current == goal && node.g_score >= latest_constraint_time) {
+            return node.path;
         }
 
         int next_time = node.g_score + 1;
@@ -234,9 +237,18 @@ Solution CBS(GridWorld& grid, vector<Agent>& agents) {
     priority_queue<CBSNode, vector<CBSNode>, greater<CBSNode>> open_set;
     open_set.push({root_cost, root_sol, root_constraints});
 
+    int iterations = 0;
+
     while (!open_set.empty()) {
         CBSNode node = open_set.top();
         open_set.pop();
+
+        iterations++;
+        if (iterations % 100 == 0) {
+            cout << "Iter: " << iterations 
+                 << " | Cost: " << node.cost 
+                 << " | Queue Size: " << open_set.size() << endl;
+        }
 
         ConflictInfo conflict = validate(node.sol);
 
@@ -307,53 +319,44 @@ void print_paths(const Solution& sol) {
 }
 
 bool load_scenario(const string& filename, GridWorld& grid, vector<Agent>& agents) {
-    try {
-        YAML::Node config = YAML::LoadFile(filename);
-
-        // 1. Load Dimensions
-        int height = config["map"]["dimensions"][0].as<int>();
-        int width = config["map"]["dimensions"][1].as<int>();
-
-        // 2. Load Obstacles
-        set<Position> obstacles;
-        for (const auto& node : config["map"]["obstacles"]) {
-            // YAML format is [row, col]
-            int r = node[0].as<int>();
-            int c = node[1].as<int>();
-            obstacles.insert({r, c});
-        }
-
-        // Initialize GridWorld
-        // Note: We are assigning to the passed 'grid' object
-        grid = GridWorld(width, height, obstacles);
-
-        // 3. Load Agents
-        int id_counter = 0;
-        for (const auto& agent_node : config["agents"]) {
-            int start_r = agent_node["start"][0].as<int>();
-            int start_c = agent_node["start"][1].as<int>();
-            
-            int goal_r = agent_node["goal"][0].as<int>();
-            int goal_c = agent_node["goal"][1].as<int>();
-
-            // Create Agent and add to vector
-            Agent new_agent;
-            new_agent.id = id_counter++;
-            new_agent.start = {start_r, start_c};
-            new_agent.goal = {goal_r, goal_c};
-            // Optional: Store name if your Agent struct supports it
-            // new_agent.name = agent_node["name"].as<string>(); 
-
-            agents.push_back(new_agent);
-        }
-
-        return true;
-
-    } catch (const YAML::Exception& e) {
-        cerr << "Error loading YAML: " << e.what() << endl;
+    ifstream infile(filename);
+    if (!infile.is_open()) {
+        cerr << "Error: Could not open " << filename << endl;
         return false;
     }
+
+    int height, width;
+    infile >> height >> width;
+
+    // Load Obstacles
+    int num_obstacles;
+    infile >> num_obstacles;
+    set<Position> obstacles;
+    for (int i = 0; i < num_obstacles; ++i) {
+        int r, c;
+        infile >> r >> c;
+        obstacles.insert({r, c});
+    }
+
+    grid = GridWorld(width, height, obstacles);
+
+    // Load Agents
+    int num_agents;
+    infile >> num_agents;
+    for (int i = 0; i < num_agents; ++i) {
+        int id, sr, sc, gr, gc;
+        infile >> id >> sr >> sc >> gr >> gc;
+        
+        Agent new_agent;
+        new_agent.id = id;
+        new_agent.start = {sr, sc};
+        new_agent.goal = {gr, gc};
+        agents.push_back(new_agent);
+    }
+
+    return true;
 }
+
 
 int main() {
     // Placeholder objects
@@ -362,7 +365,8 @@ int main() {
     vector<Agent> agents;
 
     // Load data from file
-    if (!load_scenario("../dataset/maze-32-32-2/4-0.yaml", grid, agents)) {
+    // if (!load_scenario("./dataset/maze-32-32-2/4-0.txt", grid, agents)) {
+    if (!load_scenario("./dataset/sample.txt", grid, agents)) {
         return -1;
     }
 
@@ -371,7 +375,9 @@ int main() {
 
     // Run CBS
     cout << "Running CBS..." << endl;
+    auto start = std::chrono::high_resolution_clock::now();
     Solution sol = CBS(grid, agents);
+    auto end = std::chrono::high_resolution_clock::now();
 
     if (!sol.empty()) {
         cout << "Solution Found!" << endl;
@@ -379,6 +385,9 @@ int main() {
     } else {
         cout << "No Solution Found." << endl;
     }
+    auto duration_ms = std::chrono::duration_cast<std::chrono::milliseconds>(end - start).count();
+
+    cout << "CBS took " << duration_ms << " ms" << endl;
 
     return 0;
 }

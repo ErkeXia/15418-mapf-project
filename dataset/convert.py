@@ -1,0 +1,68 @@
+import sys
+from pathlib import Path
+
+def parse_custom_yaml(filename):
+    with open(filename, 'r') as f:
+        lines = f.readlines()
+
+    obstacles = []
+    agents = []
+    dims = [0, 0]
+    
+    mode = None # 'obstacles' or 'agents'
+    current_agent = {}
+
+    for line in lines:
+        line = line.strip()
+        if not line: continue
+
+        if line.startswith('dimensions:'):
+            # Format: dimensions: [32, 32]
+            parts = line.split('[')[1].split(']')[0].split(',')
+            dims = [int(p) for p in parts]
+        
+        elif line.startswith('obstacles:'):
+            mode = 'obstacles'
+        elif line.startswith('agents:'):
+            mode = 'agents'
+        
+        # Parse Obstacles
+        elif mode == 'obstacles' and line.startswith('-'):
+            # Format: - [0, 0]
+            parts = line.split('[')[1].split(']')[0].split(',')
+            obstacles.append((int(parts[0]), int(parts[1])))
+
+        # Parse Agents
+        elif mode == 'agents':
+            if line.startswith('- name:'):
+                current_agent = {}
+            if 'start:' in line:
+                parts = line.split('[')[1].split(']')[0].split(',')
+                current_agent['start'] = (int(parts[0]), int(parts[1]))
+            if 'goal:' in line:
+                parts = line.split('[')[1].split(']')[0].split(',')
+                current_agent['goal'] = (int(parts[0]), int(parts[1]))
+                agents.append(current_agent)
+
+    return dims, obstacles, agents
+
+def convert_yaml(filename):
+    dest_file = Path(filename).with_suffix(".txt")
+    with open(dest_file, "w") as f:
+        sys.stdout = f 
+        try:
+            dims, obstacles, agents = parse_custom_yaml(filename)
+
+            print(f"{dims[0]} {dims[1]}")
+            
+            print(len(obstacles))
+            for obs in obstacles:
+                print(f"{obs[0]} {obs[1]}")
+
+            print(len(agents))
+            for i, a in enumerate(agents):
+                print(f"{i} {a['start'][0]} {a['start'][1]} {a['goal'][0]} {a['goal'][1]}")
+
+        except FileNotFoundError:
+            sys.stderr.write(f"Error: {filename} not found.\n")
+convert_yaml("./maze-32-32-2/4-0.yaml")
