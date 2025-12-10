@@ -73,4 +73,5 @@ def convert_yaml(filename):
 
         except FileNotFoundError:
             sys.stderr.write(f"Error: {filename} not found.\n")
-convert_yaml("../../dataset/w_woundedcoast/4-0.yaml")
+# convert_yaml("../../dataset/w_woundedcoast/4-0.yaml")
+convert_yaml("../../dataset/Paris_1_256/4-0.yaml")
