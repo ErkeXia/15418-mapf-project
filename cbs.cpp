@@ -166,10 +166,7 @@ int SIC(const Solution& sol) {
             i--;
         }
         // If path is just start->...->goal, i is the time steps (length - 1)
-        // But if start==goal initially, cost is 0. 
-        // Using logic: cost += max(0, i - 1) based on Python snippet
-        // However, python snippet logic `path[i-1] == pos` checks against 'pos' which was stored in tuple
-        // In python: Root_sol[i] = (agent.goal, path). 
+        // But if start==goal initially, cost is 0.  
         
         cost += max(0, i - 1); 
     }
@@ -186,7 +183,6 @@ struct ConflictInfo {
 };
 
 ConflictInfo validate(const Solution& sol) {
-    // Convert map to vector for indexed access to match python loop style
     vector<int> agent_ids;
     for(auto const& [key, val] : sol) agent_ids.push_back(key);
 
