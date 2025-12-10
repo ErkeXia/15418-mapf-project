@@ -47,7 +47,15 @@ def parse_custom_yaml(filename):
     return dims, obstacles, agents
 
 def convert_yaml(filename):
-    dest_file = Path(filename).with_suffix(".txt")
+    src = Path(filename)
+    try:
+        rel = src.relative_to("../../dataset")
+    except ValueError:
+        rel = src
+    print(rel)
+    dest_file = Path(".") / rel
+    dest_file = dest_file.with_suffix(".txt")
+    dest_file.parent.mkdir(parents=True, exist_ok=True)
     with open(dest_file, "w") as f:
         sys.stdout = f 
         try:
@@ -65,4 +73,4 @@ def convert_yaml(filename):
 
         except FileNotFoundError:
             sys.stderr.write(f"Error: {filename} not found.\n")
-convert_yaml("./maze-32-32-2/4-0.yaml")
+convert_yaml("../../dataset/w_woundedcoast/4-0.yaml")
