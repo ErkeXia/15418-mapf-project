@@ -6,7 +6,7 @@
 #include <string>
 
 using Position = std::pair<int,int>;
-using Path     = std::vector<Position>;
+using Path = std::vector<Position>;
 using Constraint = std::pair<int, Position>; // (time, cell)
 using AgentSolution = std::pair<Position, Path>;
 using Solution = std::map<int, AgentSolution>;

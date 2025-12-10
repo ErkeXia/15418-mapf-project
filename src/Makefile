@@ -1,14 +1,29 @@
-CXX := g++
-CXXFLAGS := -std=c++17 -O2 -Wall -Wextra
+CXX     := g++
+NVCC    := nvcc
+CXXFLAGS := -std=c++17 -O2
+NVCCFLAGS := -std=c++17 -O2
 
-SRCS := main.cpp grid.cpp planner_serial.cpp cbs.cpp
-OBJS := $(SRCS:.cpp=.o)
+SRC_CPP := main.cpp grid.cpp planner_serial.cpp
+SRC_CU  := planner_bfs.cu
 
-mapf: $(OBJS)
-	$(CXX) $(CXXFLAGS) $(OBJS) -o mapf
+OBJ_CPP := $(SRC_CPP:.cpp=.o)
+OBJ_CU  := $(SRC_CU:.cu=.o)
 
+TARGET  := cbs_gpu
+
+all: $(TARGET)
+
+# Compile C++ files
 %.o: %.cpp
 	$(CXX) $(CXXFLAGS) -c $< -o $@
 
+# Compile CUDA file
+%.o: %.cu
+	$(NVCC) $(NVCCFLAGS) -c $< -o $@
+
+# Link everything with nvcc (so CUDA runtime is linked automatically)
+$(TARGET): $(OBJ_CPP) $(OBJ_CU)
+	$(NVCC) $(NVCCFLAGS) $^ -o $@
+
 clean:
-	rm -f $(OBJS) mapf
+	rm -f $(OBJ_CPP) $(OBJ_CU) $(TARGET)
