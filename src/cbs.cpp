@@ -50,14 +50,6 @@ int SIC(const Solution& sol) {
     return cost;
 }
 
-// Returns: (agent_i, agent_j, time, position)
-struct ConflictInfo {
-    bool found;
-    int agent_i;
-    int agent_j;
-    int time;
-    Position pos;
-};
 
 ConflictInfo validate(const Solution& sol) {
     vector<int> agent_ids;

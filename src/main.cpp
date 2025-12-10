@@ -11,8 +11,8 @@ int main(int argc, char** argv) {
     std::vector<Agent> agents;
 
     // Change path as needed
-    // if (!load_scenario("./dataset/maze-32-32-2/4-0.txt", grid, agents)) {
-    if (!load_scenario("./dataset/sample.txt", grid, agents)) {
+    if (!load_scenario("../dataset/maze-32-32-2/4-0.txt", grid, agents)) {
+    // if (!load_scenario("../dataset/sample.txt", grid, agents)) {
         return -1;
     }
 
