@@ -11,9 +11,9 @@ int main(int argc, char** argv) {
     std::vector<Agent> agents;
 
     // Change path as needed
-    if (!load_scenario("../dataset/Paris_1_256/19-98.txt", grid, agents)) {
-    // if (!load_scenario("../dataset/w_woundedcoast/4-0.txt", grid, agents)) {
-    // if (!load_scenario("../dataset/maze-32-32-2/4-0.txt", grid, agents)) {
+    // if (!load_scenario("../dataset/Paris_1_256/19-2.txt", grid, agents)) {
+    if (!load_scenario("../dataset/w_woundedcoast/19-2.txt", grid, agents)) {
+    // if (!load_scenario("../dataset/maze-32-32-2/19-17.txt", grid, agents)) {
     // if (!load_scenario("../dataset/sample.txt", grid, agents)) {
         return -1;
     }
@@ -31,6 +31,7 @@ int main(int argc, char** argv) {
     } else {
         std::cout << "Using serial A* planner\n";
     }
+    // planner = plan_path_gpu_bfs;
 
     std::cout << "Running CBS" << std::endl;
     auto start = std::chrono::high_resolution_clock::now();
