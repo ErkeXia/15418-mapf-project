@@ -79,7 +79,7 @@ def convert_yaml(filename):
 import glob
 import os
 
-folder = "../../dataset/maze-32-32-2"
+folder = "../../dataset/w_woundedcoast"
 
 # all .yaml files in that folder
 for yaml_file in glob.glob(os.path.join(folder, "*.yaml")):
