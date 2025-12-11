@@ -51,11 +51,11 @@ struct DeviceConstraint {
 
 
 
-__device__ bool in_bounds(int r, int c, int width, int height) {
+static __device__ bool in_bounds(int r, int c, int width, int height) {
     return (r >= 0 && r < height && c >= 0 && c < width);
 }
 
-__device__ bool is_free_cell(int r, int c, int width, int height, const unsigned char* obs) {
+static __device__ bool is_free_cell(int r, int c, int width, int height, const unsigned char* obs) {
     if (!in_bounds(r, c, width, height)) return false;
     int idx = r * width + c;
     return (obs[idx] == 0);

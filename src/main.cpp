@@ -11,8 +11,8 @@ int main(int argc, char** argv) {
     std::vector<Agent> agents;
 
     // Change path as needed
-    // if (!load_scenario("../dataset/Paris_1_256/4-0.txt", grid, agents)) {
-    if (!load_scenario("../dataset/w_woundedcoast/4-0.txt", grid, agents)) {
+    if (!load_scenario("../dataset/Paris_1_256/19-10.txt", grid, agents)) {
+    // if (!load_scenario("../dataset/w_woundedcoast/4-0.txt", grid, agents)) {
     // if (!load_scenario("../dataset/maze-32-32-2/4-0.txt", grid, agents)) {
     // if (!load_scenario("../dataset/sample.txt", grid, agents)) {
         return -1;
@@ -23,8 +23,10 @@ int main(int argc, char** argv) {
 
     // Choose planner: serial by default, later you can parse argv for GPU
     PlannerFunc planner = plan_path_serial;
+    bool gpu = false;
     if (argc > 1 && std::string(argv[1]) == "gpu") {
         planner = plan_path_gpu_bfs;
+        gpu = true;
         std::cout << "Using GPU planner (BFS-based)\n";
     } else {
         std::cout << "Using serial A* planner\n";
@@ -32,7 +34,7 @@ int main(int argc, char** argv) {
 
     std::cout << "Running CBS" << std::endl;
     auto start = std::chrono::high_resolution_clock::now();
-    Solution sol = CBS(grid, agents, planner);
+    Solution sol = CBS(grid, agents, planner, gpu);
     auto end = std::chrono::high_resolution_clock::now();
 
     if (!sol.empty()) {
