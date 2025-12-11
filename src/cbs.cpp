@@ -90,33 +90,33 @@ Solution CBS(GridWorld& grid, vector<Agent>& agents, PlannerFunc planner, bool g
     // Initial Plans
     auto start = std::chrono::high_resolution_clock::now();
 
-    // if(gpu){
-    //     cout << "look for path for all agents " << endl;
-    //     std::vector<Path> init_paths = plan_path_init(grid, agents);
-    //     for (size_t i = 0; i < agents.size(); ++i) {
-    //         if (init_paths[i].empty()) { /* handle failure */ }
-    //         root_sol[agents[i].id] = {agents[i].goal, init_paths[i]};
-    //     }
-    // }else{
-    //     for (const auto& agent : agents) {
-    //         Path p = planner(grid, agent.start, agent.goal, {});
-    //         if (p.empty()) {
-    //             cout << "Failed to find path for agent " << agent.id << endl;
-    //             return {};
-    //         }
-    //         root_sol[agent.id] = {agent.goal, p};
-    //     }
-    // }
-
-
-    for (const auto& agent : agents) {
-        Path p = planner(grid, agent.start, agent.goal, {});
-        if (p.empty()) {
-            cout << "Failed to find path for agent " << agent.id << endl;
-            return {};
+    if(gpu){
+        cout << "look for path for all agents " << endl;
+        std::vector<Path> init_paths = plan_path_init(grid, agents);
+        for (size_t i = 0; i < agents.size(); ++i) {
+            if (init_paths[i].empty()) { /* handle failure */ }
+            root_sol[agents[i].id] = {agents[i].goal, init_paths[i]};
         }
-        root_sol[agent.id] = {agent.goal, p};
+    }else{
+        for (const auto& agent : agents) {
+            Path p = planner(grid, agent.start, agent.goal, {});
+            if (p.empty()) {
+                cout << "Failed to find path for agent " << agent.id << endl;
+                return {};
+            }
+            root_sol[agent.id] = {agent.goal, p};
+        }
     }
+
+
+    // for (const auto& agent : agents) {
+    //     Path p = planner(grid, agent.start, agent.goal, {});
+    //     if (p.empty()) {
+    //         cout << "Failed to find path for agent " << agent.id << endl;
+    //         return {};
+    //     }
+    //     root_sol[agent.id] = {agent.goal, p};
+    // }
 
 
     auto init_finish = std::chrono::high_resolution_clock::now();
