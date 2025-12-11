@@ -12,7 +12,7 @@ struct ConflictInfo {
 
 Solution CBS(GridWorld& grid,
              std::vector<Agent>& agents,
-             PlannerFunc planner);
+             PlannerFunc planner, bool gpu);
 
 void print_paths(const Solution& sol);
 

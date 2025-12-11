@@ -4,7 +4,7 @@ CXXFLAGS := -std=c++17 -O2
 NVCCFLAGS := -std=c++17 -O2
 
 SRC_CPP := main.cpp grid.cpp planner_serial.cpp cbs.cpp
-SRC_CU  := planner_bfs.cu
+SRC_CU  := planner_bfs.cu planner_bfs_mul.cu
 
 OBJ_CPP := $(SRC_CPP:.cpp=.o)
 OBJ_CU  := $(SRC_CU:.cu=.o)

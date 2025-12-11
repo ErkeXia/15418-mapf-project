@@ -10,3 +10,5 @@ Path plan_path_serial(const GridWorld& grid, Position start, Position goal, cons
 
 // GPU BFS version
 Path plan_path_gpu_bfs(const GridWorld& grid, Position start, Position goal, const std::set<Constraint>& constraints);
+
+std::vector<Path> plan_path_init(const GridWorld& grid, const std::vector<Agent>& agents);
