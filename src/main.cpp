@@ -12,9 +12,9 @@ int main(int argc, char** argv) {
 
     // Change path as needed
     // if (!load_scenario("../dataset/Paris_1_256/4-0.txt", grid, agents)) {
-    // if (!load_scenario("../dataset/w_woundedcoast/4-0.txt", grid, agents)) {
+    if (!load_scenario("../dataset/w_woundedcoast/4-0.txt", grid, agents)) {
     // if (!load_scenario("../dataset/maze-32-32-2/4-0.txt", grid, agents)) {
-    if (!load_scenario("../dataset/sample.txt", grid, agents)) {
+    // if (!load_scenario("../dataset/sample.txt", grid, agents)) {
         return -1;
     }
 
@@ -37,6 +37,7 @@ int main(int argc, char** argv) {
 
     if (!sol.empty()) {
         std::cout << "Solution Found!" << std::endl;
+        check_solution(grid, agents, sol);
         // print_paths(sol);
     } else {
         std::cout << "No Solution Found" << std::endl;

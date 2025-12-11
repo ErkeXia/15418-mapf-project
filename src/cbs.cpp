@@ -180,3 +180,95 @@ void print_paths(const Solution& sol) {
         cout << endl;
     }
 }
+
+
+bool check_solution(const GridWorld& grid, const std::vector<Agent>& agents, const Solution& sol) {
+    std::cout << "--- Verifying Solution ---" << std::endl;
+
+    if (sol.empty()) {
+        std::cout << "FAIL: Solution is empty" << std::endl;
+        return false;
+    }
+    for (const auto& agent : agents) {
+        if (sol.find(agent.id) == sol.end()) {
+            std::cout << "FAIL: No solution found for Agent " << agent.id << std::endl;
+            return false;
+        }
+        const Path& path = sol.at(agent.id).second;
+        if (path.empty() || path[0] != agent.start) {
+            std::cout << "FAIL: Agent " << agent.id << " does not start at correct location." << std::endl;
+            return false;
+        }
+        if (path.back() != agent.goal) {
+            std::cout << "FAIL: Agent " << agent.id << " does not end at goal." << std::endl;
+            return false;
+        }
+        for (size_t t = 0; t < path.size(); ++t) {
+            Position curr = path[t];
+            if (!grid.in_bounds(curr)) {
+                std::cout << "FAIL: Agent " << agent.id << " out of bounds at time " << t << std::endl;
+                return false;
+            }
+            if (!grid.passable(curr)) {
+                std::cout << "FAIL: Agent " << agent.id << " hits obstacle at " 
+                          << curr.first << "," << curr.second << " at time " << t << std::endl;
+                return false;
+            }
+
+            if (t > 0) {
+                Position prev = path[t-1];
+                int dist = abs(curr.first - prev.first) + abs(curr.second - prev.second);
+                if (dist > 1) {
+                    std::cout << "FAIL: Agent " << agent.id << " teleports from (" 
+                              << prev.first << "," << prev.second << ") to (" 
+                              << curr.first << "," << curr.second << ") at time " << t << std::endl;
+                    return false;
+                }
+            }
+        }
+    }
+
+    size_t max_time = 0;
+    for (const auto& kv : sol) {
+        max_time = std::max(max_time, kv.second.second.size());
+    }
+
+    std::vector<int> agent_ids;
+    for (const auto& agent : agents) agent_ids.push_back(agent.id);
+
+    for (size_t t = 0; t < max_time; ++t) {
+        for (size_t i = 0; i < agent_ids.size(); ++i) {
+            for (size_t j = i + 1; j < agent_ids.size(); ++j) {
+                int id1 = agent_ids[i];
+                int id2 = agent_ids[j];
+
+                const Path& p1 = sol.at(id1).second;
+                const Path& p2 = sol.at(id2).second;
+
+                Position pos1 = p1[std::min(t, p1.size() - 1)];
+                Position pos2 = p2[std::min(t, p2.size() - 1)];
+
+                if (pos1 == pos2) {
+                    std::cout << "FAIL: Vertex Conflict between Agent " << id1 
+                              << " and Agent " << id2 << " at (" << pos1.first << "," << pos1.second 
+                              << ") at time " << t << std::endl;
+                    return false;
+                }
+
+                if (t > 0) {
+                    Position prev1 = p1[std::min(t - 1, p1.size() - 1)];
+                    Position prev2 = p2[std::min(t - 1, p2.size() - 1)];
+
+                    if (prev1 == pos2 && prev2 == pos1) {
+                        std::cout << "FAIL: Edge Conflict (Swap) between Agent " << id1 
+                                  << " and Agent " << id2 << " at time " << t << std::endl;
+                        return false;
+                    }
+                }
+            }
+        }
+    }
+
+    std::cout << "PASS: Solution is valid!" << std::endl;
+    return true;
+}

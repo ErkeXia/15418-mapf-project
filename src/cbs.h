@@ -15,3 +15,5 @@ Solution CBS(GridWorld& grid,
              PlannerFunc planner);
 
 void print_paths(const Solution& sol);
+
+bool check_solution(const GridWorld& grid, const std::vector<Agent>& agents, const Solution& sol);
