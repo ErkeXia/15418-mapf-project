@@ -52,26 +52,36 @@ def convert_yaml(filename):
         rel = src.relative_to("../../dataset")
     except ValueError:
         rel = src
-    print(rel)
+    print(rel)  # this still prints to the real stdout
+
     dest_file = Path(".") / rel
     dest_file = dest_file.with_suffix(".txt")
     dest_file.parent.mkdir(parents=True, exist_ok=True)
+
+    try:
+        dims, obstacles, agents = parse_custom_yaml(filename)
+    except FileNotFoundError:
+        sys.stderr.write(f"Error: {filename} not found.\n")
+        return
+
     with open(dest_file, "w") as f:
-        sys.stdout = f 
-        try:
-            dims, obstacles, agents = parse_custom_yaml(filename)
+        print(f"{dims[0]} {dims[1]}", file=f)
 
-            print(f"{dims[0]} {dims[1]}")
-            
-            print(len(obstacles))
-            for obs in obstacles:
-                print(f"{obs[0]} {obs[1]}")
+        print(len(obstacles), file=f)
+        for obs in obstacles:
+            print(f"{obs[0]} {obs[1]}", file=f)
 
-            print(len(agents))
-            for i, a in enumerate(agents):
-                print(f"{i} {a['start'][0]} {a['start'][1]} {a['goal'][0]} {a['goal'][1]}")
-
-        except FileNotFoundError:
-            sys.stderr.write(f"Error: {filename} not found.\n")
+        print(len(agents), file=f)
+        for i, a in enumerate(agents):
+            print(f"{i} {a['start'][0]} {a['start'][1]} {a['goal'][0]} {a['goal'][1]}", file=f)
 # convert_yaml("../../dataset/w_woundedcoast/4-0.yaml")
-convert_yaml("../../dataset/Paris_1_256/19-10.yaml")
+
+import glob
+import os
+
+folder = "../../dataset/Paris_1_256"
+
+# all .yaml files in that folder
+for yaml_file in glob.glob(os.path.join(folder, "*.yaml")):
+    # print("Converting:", yaml_file)
+    convert_yaml(yaml_file)
